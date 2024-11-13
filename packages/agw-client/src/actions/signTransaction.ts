@@ -22,6 +22,7 @@ import {
 } from '../eip712.js';
 import { AccountNotFoundError } from '../errors/account.js';
 import { validChains } from '../exports/index.js';
+import { transformHexValues } from '../utils.js';
 
 export async function signTransaction<
   chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
@@ -40,9 +41,16 @@ export async function signTransaction<
   } = args;
   // TODO: open up typing to allow for eip712 transactions
   transaction.type = 'eip712' as any;
-  transaction.value = transaction.value
-    ? BigInt(transaction.value)
-    : (0n as any);
+  transformHexValues(transaction, [
+    'value',
+    'nonce',
+    'maxFeePerGas',
+    'maxPriorityFeePerGas',
+    'gas',
+    'value',
+    'chainId',
+    'gasPerPubdata',
+  ]);
 
   if (!account_)
     throw new AccountNotFoundError({
