@@ -8,7 +8,6 @@ import {
   type WalletClient,
 } from 'viem';
 import { getChainId, signTypedData } from 'viem/actions';
-import { abstractTestnet } from 'viem/chains';
 import { assertCurrentChain, getAction, parseAccount } from 'viem/utils';
 import {
   type ChainEIP712,
@@ -22,8 +21,7 @@ import {
   type AssertEip712RequestParameters,
 } from '../eip712.js';
 import { AccountNotFoundError } from '../errors/account.js';
-
-const ALLOWED_CHAINS: number[] = [abstractTestnet.id];
+import { validChains } from '../exports/index.js';
 
 export async function signTransaction<
   chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
@@ -59,7 +57,7 @@ export async function signTransaction<
     ...(transaction as AssertEip712RequestParameters),
   });
 
-  if (!chain || !ALLOWED_CHAINS.includes(chain.id)) {
+  if (!chain || validChains[chain.id] === undefined) {
     throw new BaseError('Invalid chain specified');
   }
 
